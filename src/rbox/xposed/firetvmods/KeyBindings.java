@@ -65,7 +65,7 @@ public class KeyBindings implements IXposedHookZygoteInit, IXposedHookLoadPackag
 			}
 		}
 		stringBuilder.append(" }");
-		Log.d(TAG, "### bindings ### " + stringBuilder.toString());
+		// Log.d(TAG, "### bindings ### " + stringBuilder.toString());
 
 		// Don't do the hook if the prefs were empty
 		if (!lpparam.packageName.equals("android") || bindings.size() == 0)
@@ -88,7 +88,7 @@ public class KeyBindings implements IXposedHookZygoteInit, IXposedHookLoadPackag
 					// static final int LONG_PRESS_HOME_RECENT_DIALOG = 1;
 					// static final int LONG_PRESS_HOME_RECENT_SYSTEM_UI = 2;
 					// static final int LONG_PRESS_HOME_VOICE_SEARCH = 3;
-					Log.d(TAG, "### mLongPressOnHomeBehavior ### 0 ### ");
+					// Log.d(TAG, "### mLongPressOnHomeBehavior ### 0 ### ");
 					XposedHelpers.setIntField(param.thisObject, "mLongPressOnHomeBehavior", 2);
 				}
 			});
@@ -108,7 +108,7 @@ public class KeyBindings implements IXposedHookZygoteInit, IXposedHookLoadPackag
 					String value = bindings.get(longPress | event.getKeyCode());
 					if (value != null)
 					{
-						Log.d(TAG, " ### start ### " + value);
+						Log.d(TAG, " ### LAUNCH ### " + value);
 						Context mContext = (Context)XposedHelpers.getObjectField(param.thisObject, "mContext");
 						mContext.startActivity(mContext.getPackageManager().getLaunchIntentForPackage(value));
 						param.setResult(-1);
