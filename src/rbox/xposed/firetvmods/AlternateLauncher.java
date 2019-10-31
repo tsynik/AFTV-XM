@@ -16,14 +16,16 @@ import java.util.Set;
 
 public class AlternateLauncher implements IXposedHookLoadPackage
 {
+	private static final String TAG = "AlternateLauncher";
+	private boolean freeze = true;
 	@Override
 	public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable
 	{
 
 		// hook KFTV Launcher
-//		if (lpparam.packageName.equals("com.amazon.tv.launcher"))
-//		{
-//			Log.i("### IN ### ", "com.amazon.tv.launcher");
+		if (lpparam.packageName.equals("com.amazon.tv.launcher"))
+		{
+			// Log.i(TAG, " ### IN ### com.amazon.tv.launcher");
 //			findAndHookMethod("com.amazon.tv.launcher.ui.HomeActivity_vNext", lpparam.classLoader, "onNewIntent", Intent.class, new XC_MethodHook() {
 //				@Override
 //				protected void afterHookedMethod(MethodHookParam param) throws Throwable
@@ -37,6 +39,19 @@ public class AlternateLauncher implements IXposedHookLoadPackage
 //				}
 //			});
 //		}
+
+			findAndHookMethod("com.amazon.tv.GlobalSettings", lpparam.classLoader, "getFrozenMode", new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) throws Throwable
+				{
+					Log.i(TAG, " ### com.amazon.tv.GlobalSettings ### getFrozenMode: " + freeze);
+					if (freeze) {
+						// FREEZE
+						param.setResult(freeze);
+					}
+				}
+			});
+		}
 
 		if (!lpparam.packageName.equals("android"))
 			return;
@@ -88,6 +103,8 @@ public class AlternateLauncher implements IXposedHookLoadPackage
 						query.set(2, query.get(0));
 						query.set(0, thirdLauncher);
 					}
+					if (query.size() < 4) // no user launcher
+						freeze = false;
 				}
 			}
 		});
