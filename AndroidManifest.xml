@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="rbox.xposed.firetvmods"
-    android:versionCode="5"
-    android:versionName="1.4">
+    android:versionCode="6"
+    android:versionName="1.5">
 
     <uses-sdk
         android:minSdkVersion="17"
@@ -20,7 +20,7 @@
             android:value="54+"/>
         <meta-data
             android:name="xposeddescription"
-            android:value="Tweaks for Amazon Fire TV by rbox"/>
+            android:value="Launcher switcher module for FireOS 6"/>
     </application>
 
 </manifest>
