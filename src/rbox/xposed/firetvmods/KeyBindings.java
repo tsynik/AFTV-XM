@@ -9,6 +9,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.inputmethod.InputMethodManager;
 import android.view.KeyEvent;
+
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
@@ -17,26 +18,31 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
+import rbox.xposed.firetvmods.BuildConfig;
+
 public class KeyBindings implements IXposedHookZygoteInit, IXposedHookLoadPackage
 {
 	private static final int LONG_PRESS = 0x80000000;
 	private static final String TAG = "KeyBindings";
 	private static String PhoneWindowMgr;
+	private static String prefsFile;
 	SparseArray<String> bindings;
 
 	@Override
 	public void initZygote(StartupParam startupParam) throws Throwable
 	{
 		bindings = new SparseArray<String>();
-		Log.d(TAG, "initZygote");
-		// Add the home long press to recents by default
+		// Add the home long press to nothing by default
 		bindings.put(LONG_PRESS | KeyEvent.KEYCODE_HOME, null);
-		// SEARCH
-		bindings.put(0 | KeyEvent.KEYCODE_SEARCH, "com.google.android.katniss");
+		// Google Search
+		bindings.put(LONG_PRESS | KeyEvent.KEYCODE_SEARCH, "com.google.android.katniss");
 
-		// FIXME: sdcard permissions
+// FIXME: sdcard permissions
 //		XSharedPreferences prefs = new XSharedPreferences(new File("/data/media/0/key_bindings.xml"));
-//		prefs.makeWorldReadable();
+//		XSharedPreferences prefs = new XSharedPreferences(BuildConfig.APPLICATION_ID, "key_bindings");
+//		prefsFile = prefs.getFile().toString(); // DEBUG
+//		prefs.reload();
+//
 //		for (Entry<String, ?> e : prefs.getAll().entrySet())
 //		{
 //			String key = e.getKey();
@@ -54,6 +60,18 @@ public class KeyBindings implements IXposedHookZygoteInit, IXposedHookLoadPackag
 	public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable
 	{
 		// DEBUG
+//		if (BuildConfig.DEBUG) Log.d(TAG, "### prefs file ### " + prefsFile);
+//		XSharedPreferences prefs = new XSharedPreferences(BuildConfig.APPLICATION_ID, "key_bindings");
+//		prefs.makeWorldReadable();
+//		XposedBridge.log(TAG + ": Pref file readable -> " + prefs.getFile().canRead());
+//		if (!prefs.getFile().canRead()) {
+//			XposedBridge.log(TAG + ": Making Pref file readable");
+//			prefs.getFile().setReadable(true, false);
+//		}
+//		XposedBridge.log(TAG + ": Reloading prefs");
+//		prefs.reload();
+
+		// DEBUG
 		StringBuilder stringBuilder = new StringBuilder();
 		int size = bindings.size();
 		stringBuilder.append("{ ");
@@ -65,18 +83,18 @@ public class KeyBindings implements IXposedHookZygoteInit, IXposedHookLoadPackag
 			}
 		}
 		stringBuilder.append(" }");
-		// Log.d(TAG, "### bindings ### " + stringBuilder.toString());
+		if (BuildConfig.DEBUG) Log.d(TAG, "### bindings ### " + stringBuilder.toString());
 
 		// Don't do the hook if the prefs were empty
 		if (!lpparam.packageName.equals("android") || bindings.size() == 0)
 			return;
 
-		if (Build.VERSION.SDK_INT >= 23) // M
+		if (Build.VERSION.SDK_INT >= 23) // MM
 			PhoneWindowMgr = "com.android.server.policy.PhoneWindowManager";
 		else
 			PhoneWindowMgr = "com.android.internal.policy.impl.PhoneWindowManager";
 
-		// Add a hook for setting up recents on menu long press
+		// Add a hook for setting up action on HOME long press
 		if (bindings.get(LONG_PRESS | KeyEvent.KEYCODE_HOME) == null)
 		{
 			XposedHelpers.findAndHookConstructor(PhoneWindowMgr, lpparam.classLoader, new XC_MethodHook() {
@@ -89,7 +107,7 @@ public class KeyBindings implements IXposedHookZygoteInit, IXposedHookLoadPackag
 					// static final int LONG_PRESS_HOME_RECENT_SYSTEM_UI = 2;
 					// static final int LONG_PRESS_HOME_VOICE_SEARCH = 3;
 					// Log.d(TAG, "### mLongPressOnHomeBehavior ### 0 ### ");
-					XposedHelpers.setIntField(param.thisObject, "mLongPressOnHomeBehavior", 2);
+					XposedHelpers.setIntField(param.thisObject, "mLongPressOnHomeBehavior", 0);
 				}
 			});
 		}
@@ -103,19 +121,17 @@ public class KeyBindings implements IXposedHookZygoteInit, IXposedHookLoadPackag
 				if (event.getAction() == KeyEvent.ACTION_DOWN)
 				{
 					int longPress = (event.getFlags() & KeyEvent.FLAG_LONG_PRESS) != 0 ? LONG_PRESS : 0;
-					// if (longPress != 0)
-					//	Log.d(TAG, "### long press ### " + longPress);
 					String value = bindings.get(longPress | event.getKeyCode());
 					if (value != null)
 					{
-						Log.d(TAG, " ### LAUNCH ### " + value);
+						if (BuildConfig.DEBUG) Log.d(TAG, " ### LAUNCH ### " + value);
 						Context mContext = (Context)XposedHelpers.getObjectField(param.thisObject, "mContext");
 						mContext.startActivity(mContext.getPackageManager().getLaunchIntentForPackage(value));
 						param.setResult(-1);
 					}
-					// LONG PRESSED MENU
+					// Keyboard switch on LONG PRESS MENU
 					if (longPress != 0 && event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
-						Log.d(TAG, " ### MENU_LONG ### ");
+						if (BuildConfig.DEBUG) Log.d(TAG, " ### MENU_LONG ### ");
 						Context mContext = (Context)XposedHelpers.getObjectField(param.thisObject, "mContext");
 						((InputMethodManager) mContext.getSystemService("input_method")).showInputMethodPicker();
 					}

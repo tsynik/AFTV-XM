@@ -53,52 +53,52 @@ public class HideAmazonMenuItems implements IXposedHookZygoteInit, IXposedHookIn
 	public void handleLoadPackage(final LoadPackageParam lpparam) throws Throwable
 	{
 
-//		if (lpparam.packageName.equals("com.amazon.tv.launcher"))
-//		{
-//			final Class<?> SettingsItem = XposedHelpers.findClass("com.amazon.tv.launcher.ui.list.adapter.SettingsItem", lpparam.classLoader);
-//
-//			XposedHelpers.findAndHookMethod(SettingsItem, "getSettingsItems", Context.class, boolean.class, new XC_MethodHook() {
-//				@Override
-//				protected void afterHookedMethod(MethodHookParam param) throws Throwable
-//				{
-//					@SuppressWarnings("unchecked")
-//					List<Object> settingsItems = (List<Object>)param.getResult();
-//
-//					// Create the new item with the help intent and delete the help item
-//					Object helpItem = settingsItems.get(5);
-//					settingsItems.add(0, XposedHelpers.newInstance(SettingsItem,
-//							0,
-//							"Menu Items",
-//							"Select what menu items should be visible on the home screen.",
-//							DRAWABLE_MENU_ITEMS,
-//							XposedHelpers.getObjectField(helpItem, "mIntent"),
-//							false));
-//					settingsItems.remove(helpItem);
-//
-//					// Go through each item in the list and adjust their id
-//					for (int i = 1; i < settingsItems.size(); i++)
-//						XposedHelpers.setObjectField(settingsItems.get(i), "mId", i);
-//				}
-//			});
-//
-//			XposedHelpers.findAndHookMethod("com.amazon.tv.launcher.ui.leftmenu.MenuInfoCollection", lpparam.classLoader, "initMenuInfo", Context.class, new XC_MethodHook() {
-//				@Override
-//				protected void afterHookedMethod(MethodHookParam param) throws Throwable
-//				{
-//					// Get the menu list
-//					@SuppressWarnings("unchecked")
-//					ArrayList<Object> mMenuInfo = (ArrayList<Object>)XposedHelpers.getObjectField(param.thisObject, "mMenuInfo");
-//
-//					// Loop over every MenuInfo, and remove it if it's in the preferences
-//					for (Iterator<Object> it = mMenuInfo.iterator(); it.hasNext();)
-//					{
-//						Object menuInfo = it.next();
-//						if (prefs.getBoolean(menuInfo.toString(), true) == false)
-//							it.remove();
-//					}
-//				}
-//			});
-//		}
+		if (lpparam.packageName.equals("com.amazon.tv.launcher"))
+		{
+			final Class<?> SettingsItem = XposedHelpers.findClass("com.amazon.tv.launcher.ui.list.adapter.SettingsItem", lpparam.classLoader);
+
+			XposedHelpers.findAndHookMethod(SettingsItem, "getSettingsItems", Context.class, boolean.class, new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) throws Throwable
+				{
+					@SuppressWarnings("unchecked")
+					List<Object> settingsItems = (List<Object>)param.getResult();
+
+					// Create the new item with the help intent and delete the help item
+					Object helpItem = settingsItems.get(5);
+					settingsItems.add(0, XposedHelpers.newInstance(SettingsItem,
+							0,
+							"Menu Items",
+							"Select what menu items should be visible on the home screen.",
+							DRAWABLE_MENU_ITEMS,
+							XposedHelpers.getObjectField(helpItem, "mIntent"),
+							false));
+					settingsItems.remove(helpItem);
+
+					// Go through each item in the list and adjust their id
+					for (int i = 1; i < settingsItems.size(); i++)
+						XposedHelpers.setObjectField(settingsItems.get(i), "mId", i);
+				}
+			});
+
+			XposedHelpers.findAndHookMethod("com.amazon.tv.launcher.ui.leftmenu.MenuInfoCollection", lpparam.classLoader, "initMenuInfo", Context.class, new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) throws Throwable
+				{
+					// Get the menu list
+					@SuppressWarnings("unchecked")
+					ArrayList<Object> mMenuInfo = (ArrayList<Object>)XposedHelpers.getObjectField(param.thisObject, "mMenuInfo");
+
+					// Loop over every MenuInfo, and remove it if it's in the preferences
+					for (Iterator<Object> it = mMenuInfo.iterator(); it.hasNext();)
+					{
+						Object menuInfo = it.next();
+						if (prefs.getBoolean(menuInfo.toString(), true) == false)
+							it.remove();
+					}
+				}
+			});
+		}
 
 		if (lpparam.packageName.equals("com.amazon.tv.csapp"))
 		{

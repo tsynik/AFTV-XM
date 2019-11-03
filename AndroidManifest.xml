@@ -1,26 +1,29 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="rbox.xposed.firetvmods"
-    android:versionCode="6"
-    android:versionName="1.5">
+	package="rbox.xposed.firetvmods"
+	android:versionCode="7"
+	android:versionName="1.5">
 
-    <uses-sdk
-        android:minSdkVersion="17"
-        android:targetSdkVersion="17"/>
+	<uses-sdk
+		android:minSdkVersion="17"
+		android:targetSdkVersion="23"/>
 
-    <application
-        android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme">
-        <meta-data
-            android:name="xposedmodule"
-            android:value="true"/>
-        <meta-data
-            android:name="xposedminversion"
-            android:value="54+"/>
-        <meta-data
-            android:name="xposeddescription"
-            android:value="Launcher switcher module for FireOS 6"/>
-    </application>
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+	<application
+		android:allowBackup="true"
+		android:icon="@drawable/ic_launcher"
+		android:label="@string/app_name"
+		android:theme="@style/AppTheme">
+		<meta-data
+			android:name="xposedmodule"
+			android:value="true"/>
+		<meta-data
+			android:name="xposedminversion"
+			android:value="54+"/>
+		<meta-data
+			android:name="xposeddescription"
+			android:value="Launcher switcher module for FireOS 6"/>
+	</application>
 
 </manifest>
