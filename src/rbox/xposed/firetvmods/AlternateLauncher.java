@@ -4,109 +4,130 @@ import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 import java.util.List;
 import android.app.Activity;
+import android.app.AndroidAppHelper;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 import java.util.Set;
 
+import rbox.xposed.firetvmods.BuildConfig;
+
 public class AlternateLauncher implements IXposedHookLoadPackage
 {
 	private static final String TAG = "AlternateLauncher";
-	private boolean freeze = true;
+
 	@Override
 	public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable
 	{
 
-		// hook KFTV Launcher
-		if (lpparam.packageName.equals("com.amazon.tv.launcher"))
-		{
-			// Log.i(TAG, " ### IN ### com.amazon.tv.launcher");
-//			findAndHookMethod("com.amazon.tv.launcher.ui.HomeActivity_vNext", lpparam.classLoader, "onNewIntent", Intent.class, new XC_MethodHook() {
-//				@Override
-//				protected void afterHookedMethod(MethodHookParam param) throws Throwable
-//				{
-//					Log.i("### onNewIntent ### ", "com.amazon.tv.launcher.ui.HomeActivity_vNext");
-//					Intent intent = (Intent)param.args[0];
-//					Bundle extras = intent.getExtras();
-//					if (extras != null) {
-//						Log.i("### has extras ### ", extras.toString());
-//					}
-//				}
-//			});
-//		}
-
-			findAndHookMethod("com.amazon.tv.GlobalSettings", lpparam.classLoader, "getFrozenMode", new XC_MethodHook() {
+		if (lpparam.packageName.equals("android")) {
+			// Use the alternate launcher instead of the Amazon launcher
+			findAndHookMethod("com.android.server.pm.PackageManagerService", lpparam.classLoader, "chooseBestActivity", Intent.class, String.class, int.class, List.class, int.class, new XC_MethodHook() {
 				@Override
-				protected void afterHookedMethod(MethodHookParam param) throws Throwable
+				protected void beforeHookedMethod(MethodHookParam param) throws Throwable
 				{
-					Log.i(TAG, " ### com.amazon.tv.GlobalSettings ### getFrozenMode: " + freeze);
-					if (freeze) {
-						// FREEZE
-						param.setResult(freeze);
+					@SuppressWarnings("unchecked")
+					List<ResolveInfo> query = (List<ResolveInfo>)param.args[3];
+					Intent intent = (Intent)param.args[0];
+					Set<String> categories = intent.getCategories();
+					Bundle extras = intent.getExtras();
+					boolean loadSettings = false;
+					boolean freeze = true;
+					// DEBUG FireOS 6.2.6.6
+					// 0 ### : com.amazon.tv.launcher.ui.HomeActivity_vNext priority: 950
+					// 1 ### : com.amazon.firehomestarter.HomeStarterActivity priority: 1
+					// 2 ### : ca.dstudio.atvlauncher.screens.launcher.LauncherActivity priority: 0
+					// 3 ### : com.amazon.tv.leanbacklauncher.MainActivity priority: 0
+					// 4 ### : com.amazon.tv.settings.v2.system.FallbackHome priority: -1000
+					if (BuildConfig.DEBUG) Log.d(TAG, "### I ### " + param.args[0].toString());
+					if (extras != null) {
+						for (String key : extras.keySet()) {
+							if (BuildConfig.DEBUG) Log.d(TAG, "### E ### " + key + " : " + (extras.get(key) != null ? extras.get(key) : "NULL"));
+						}
+					}
+					for (int i=0; i < query.size(); i++) {
+						if (BuildConfig.DEBUG) Log.d(TAG, "### " + i + " ### " + query.get(i).activityInfo.name + " priority: " + query.get(i).priority);
+					}
+
+					if (Intent.ACTION_MAIN.equals(intent.getAction())
+						&& categories != null
+						&& categories.size() == 1
+						&& categories.contains(Intent.CATEGORY_HOME)) {
+
+						// Check if we load Settings
+						if (extras != null && extras.containsKey("navigate_node") && extras.get("navigate_node").equals("l_settings")) {
+							loadSettings = true;
+						}
+						// Find user launcher index
+						int index = 0;
+						for (int i=0; i < query.size(); i++) {
+							if (query.get(i).priority == 0) {
+								index = i;
+								if (BuildConfig.DEBUG) Log.d(TAG, "### L ### found user launcher at index " + index);
+								break;
+								}
+						}
+						// If user launcher found and 1st one is Amazon Launcher
+						// swap them so the user one is used instead
+						if (index > 0
+							&& query.get(0).activityInfo.name.contains("com.amazon.tv.launcher.ui.HomeActivity")
+							&& !loadSettings)
+						{
+							ResolveInfo userLauncher = query.get(index);
+							query.set(index, query.get(0));
+							query.set(0, userLauncher);
+						}
+						// (un)freeze Amazon Launcher
+						if (index == 0) // no user launcher installed
+						{
+							freeze = false;
+						}
+						try {
+							if (BuildConfig.DEBUG) Log.d(TAG, "### Z ### freeze: " + freeze);
+							Context context = (Context) AndroidAppHelper.currentApplication();
+							Settings.Global.putString(context.getContentResolver(), "frozenMode", freeze ? "enabled" : "disabled");
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			});
 		}
 
-		if (!lpparam.packageName.equals("android"))
-			return;
-
-		// Use the alternate launcher instead of the Amazon launcher
-		findAndHookMethod("com.android.server.pm.PackageManagerService", lpparam.classLoader, "chooseBestActivity", Intent.class, String.class, int.class, List.class, int.class, new XC_MethodHook() {
-			@Override
-			protected void beforeHookedMethod(MethodHookParam param) throws Throwable
-			{
-				@SuppressWarnings("unchecked")
-				List<ResolveInfo> query = (List<ResolveInfo>)param.args[3];
-				Intent intent = (Intent)param.args[0];
-				Set<String> categories = intent.getCategories();
-				Bundle extras = intent.getExtras();
-				boolean loadSettings = false;
-				// DEBUG FireOS 6.2.6.6
-				// 0 ### : com.amazon.tv.launcher.ui.HomeActivity_vNext priority: 950
-				// 1 ### : com.amazon.firehomestarter.HomeStarterActivity priority: 1
-				// 2 ### : com.amazon.tv.leanbacklauncher.MainActivity priority: 0
-				// 3 ### : com.amazon.tv.settings.v2.system.FallbackHome priority: -1000
-//				Log.d("### I ### ", param.args[0].toString());
-//				if (extras != null) {
-//					for (String key : extras.keySet()) {
-//						Log.d("### E ### ", key + " : " + (extras.get(key) != null ? extras.get(key) : "NULL"));
+		// hook KFTV Launcher
+//		if (lpparam.packageName.equals("com.amazon.tv.launcher"))
+//		{
+//			if (BuildConfig.DEBUG) Log.i(TAG, " ### IN ### com.amazon.tv.launcher");
+//			findAndHookMethod("com.amazon.tv.launcher.ui.HomeActivity_vNext", lpparam.classLoader, "onNewIntent", Intent.class, new XC_MethodHook() {
+//				@Override
+//				protected void afterHookedMethod(MethodHookParam param) throws Throwable
+//				{
+//					if (BuildConfig.DEBUG) Log.i("### onNewIntent ### ", "com.amazon.tv.launcher.ui.HomeActivity_vNext");
+//					Intent intent = (Intent)param.args[0];
+//					Bundle extras = intent.getExtras();
+//					if (extras != null) {
+//						if (BuildConfig.DEBUG) Log.i("### has extras ### ", extras.toString());
 //					}
 //				}
-//				for (int i=0; i < query.size(); i++) {
-//					Log.d("### " + i + " ### ", query.get(i).activityInfo.name + " priority: " + query.get(i).priority);
+//			});
+//		}
+//			// force frozenMode in Amazon Launcher
+//			findAndHookMethod("com.amazon.tv.GlobalSettings", lpparam.classLoader, "getFrozenMode", new XC_MethodHook() {
+//				@Override
+//				protected void afterHookedMethod(MethodHookParam param) throws Throwable
+//				{
+//					if (BuildConfig.DEBUG) Log.i(TAG, "### com.amazon.tv.GlobalSettings ### override getFrozenMode to true");
+//					// FREEZE KFTV
+//					param.setResult(true);
 //				}
+//			});
+//		}
 
-				if (Intent.ACTION_MAIN.equals(intent.getAction())
-					&& categories != null
-					&& categories.size() == 1
-					&& categories.contains(Intent.CATEGORY_HOME)) {
-
-					// Check if we load Settings
-					if (extras != null && extras.containsKey("navigate_node") && extras.get("navigate_node").equals("l_settings")) {
-						loadSettings = true;
-					}
-					// If there are at least 3 activities and 1st one is Amazon Launcher
-					// swap them so the 3rd one is used (don't swap with FallbackHome)
-					if (query.size() > 2
-						&& query.get(0).activityInfo.name.contains("com.amazon.tv.launcher.ui.HomeActivity")
-						&& query.get(2).priority == 0
-						&& !query.get(2).activityInfo.name.contains("com.amazon.tv.settings.v2.system.FallbackHome")
-						&& !loadSettings)
-					{
-						ResolveInfo thirdLauncher = query.get(2);
-						query.set(2, query.get(0));
-						query.set(0, thirdLauncher);
-					}
-					if (query.size() < 4) // no user launcher
-						freeze = false;
-				}
-			}
-		});
 	}
 }
