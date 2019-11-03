@@ -8,7 +8,7 @@
 package rbox.xposed.firetvmods;
 
 public final class BuildConfig {
-    public static final boolean DEBUG = Boolean.parseBoolean("true");
+    public static final boolean DEBUG = Boolean.parseBoolean("false");
     public static final String APPLICATION_ID = "rbox.xposed.firetvmods";
     public static final String BUILD_TYPE = "release";
     public static final String FLAVOR = "";
