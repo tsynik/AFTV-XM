@@ -1,0 +1,20 @@
+<resources>
+    <string name="temperatureobserver_thermalWarningText">Die Temperatur Ihres Fire TV-Geräts ist sehr hoch; lassen Sie es abkühlen, bevor Sie es berühren. Bei Fragen kontaktieren Sie bitte den Amazon-Kundenservice.</string>
+    <string name="thermal_warning_device_hot">Ihr Gerät ist heiß – nicht anfassen.</string>
+    <string name="thermal_warning_cool_down">Bitte verwenden Sie das Gerät nicht weiter und warten Sie, bis es abgekühlt ist.</string>
+    <string name="i18n_pn_generic" />
+    <string name="i18n_pn_short" />
+    <string name="i18n_pn_medium" />
+    <string name="i18n_pn_long" />
+    <string name="i18n_pn_full" />
+    <string name="i18n_pn_generational" />
+    <string name="def_datamonitoring_limit_header">90% Datenlimit überschritten</string>
+    <string name="def_datamonitoring_warning_reached">Sie haben %1$s GB Ihres %2$s GB-Datenlimits verbraucht</string>
+    <string name="amazonshutdownmessage_power_off_message">Ihr $(pn) wird ausgeschaltet</string>
+    <string name="def_cod_notif_title">Nicht unterstützter HDMI-Hub</string>
+    <string name="def_cod_notif_description">Ihr Fire TV ist mit einem nicht unterstützten HDMI-Hub verbunden. Dadurch kann die Leistung beeinträchtigt werden.</string>
+    <string name="osd_name">Amazon FireTV</string>
+    <string name="amazonbootmessage_upgrading_title">Fire wird aktualisiert …</string>
+    <string name="amazonbootmessage_upgrading_installing_text">Systemspeicher und Apps werden optimiert ...</string>
+    <string name="amazonbootmessage_upgrading_update_text">Dies nimmt etwa 10 Minuten in Anspruch</string>
+</resources>
