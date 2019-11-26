@@ -1,4 +1,4 @@
 rbox.xposed.firetvmods.AlternateLauncher
-rbox.xposed.firetvmods.KeyBindings
-rbox.xposed.firetvmods.RecentsOnMenuLong
 rbox.xposed.firetvmods.FireOSRes
+rbox.xposed.firetvmods.KeyBindings
+rbox.xposed.firetvmods.USBStorage

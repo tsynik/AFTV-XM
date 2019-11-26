@@ -116,7 +116,7 @@ public class AlternateLauncher implements IXposedHookLoadPackage
 //					}
 //				}
 //			});
-//		}
+//
 //			// force frozenMode in Amazon Launcher
 //			findAndHookMethod("com.amazon.tv.GlobalSettings", lpparam.classLoader, "getFrozenMode", new XC_MethodHook() {
 //				@Override
@@ -128,6 +128,5 @@ public class AlternateLauncher implements IXposedHookLoadPackage
 //				}
 //			});
 //		}
-
 	}
 }
