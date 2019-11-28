@@ -72,7 +72,14 @@ public class FireOSRes implements IXposedHookZygoteInit//, IXposedHookInitPackag
 		XResources.setSystemWideReplacement("amazon.fireos", "bool", "config_amazonusagestats_process_user_present", false);
 		XResources.setSystemWideReplacement("amazon.fireos", "bool", "config_amazonusagestats_process_device_mode", false);
 		// Launcher OOM Adjust
-		XResources.setSystemWideReplacement("amazon.fireos", "array", "config_amazonoomadjpolicy_homeAdjProcNames", new String[]{"com.amazon.tv.leanbacklauncher", "com.amazon.tv.launcher", "com.amazon.ags.app"});
+		String[] dontKill = new String[]{
+				"com.amazon.tv.leanbacklauncher", 
+				"com.amazon.tv.launcher", 
+				"com.amazon.ags.app",
+				"ru.yourok.torrserve",
+				"net.gtvbox.videoplayer"
+		};
+		XResources.setSystemWideReplacement("amazon.fireos", "array", "config_amazonoomadjpolicy_homeAdjProcNames", dontKill);
 		// Hook Power Off Layout
 		XResources.hookSystemWideLayout("amazon.fireos", "layout", "amazonshutdownmessage_activity_powering_off", new XC_LayoutInflated() {
 			@Override
@@ -121,3 +128,4 @@ public class FireOSRes implements IXposedHookZygoteInit//, IXposedHookInitPackag
 //		});
 //	}
 }
+
