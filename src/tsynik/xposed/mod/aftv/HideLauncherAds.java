@@ -1,4 +1,4 @@
-package rbox.xposed.firetvmods;
+package tsynik.xposed.mod.aftv;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;

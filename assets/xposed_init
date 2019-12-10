@@ -1,4 +1,4 @@
-rbox.xposed.firetvmods.AlternateLauncher
-rbox.xposed.firetvmods.FireOSRes
-rbox.xposed.firetvmods.KeyBindings
-rbox.xposed.firetvmods.USBStorage
+tsynik.xposed.mod.aftv.AlternateLauncher
+tsynik.xposed.mod.aftv.FireOSRes
+tsynik.xposed.mod.aftv.KeyBindings
+tsynik.xposed.mod.aftv.USBStorage

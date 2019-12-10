@@ -1,4 +1,4 @@
-package rbox.xposed.firetvmods;
+package tsynik.xposed.mod.aftv;
 
 import java.io.File;
 import java.util.Map.Entry;
@@ -18,7 +18,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
-import rbox.xposed.firetvmods.BuildConfig;
+import tsynik.xposed.mod.aftv.BuildConfig;
 
 public class KeyBindings implements IXposedHookZygoteInit, IXposedHookLoadPackage
 {
@@ -83,7 +83,7 @@ public class KeyBindings implements IXposedHookZygoteInit, IXposedHookLoadPackag
 			}
 		}
 		stringBuilder.append(" }");
-		if (BuildConfig.DEBUG) Log.d(TAG, "### bindings ### " + stringBuilder.toString());
+		// if (BuildConfig.DEBUG) Log.d(TAG, "### bindings ### " + stringBuilder.toString());
 
 		// Don't do the hook if the prefs were empty
 		if (!lpparam.packageName.equals("android") || bindings.size() == 0)

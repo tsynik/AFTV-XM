@@ -1,8 +1,7 @@
-package rbox.xposed.firetvmods;
+package tsynik.xposed.mod.aftv;
 
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
-import java.util.List;
 import android.app.Activity;
 import android.app.AndroidAppHelper;
 import android.content.Context;
@@ -11,12 +10,15 @@ import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+
+import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
+
+import java.util.List;
 import java.util.Set;
 
-import rbox.xposed.firetvmods.BuildConfig;
+import tsynik.xposed.mod.aftv.BuildConfig;
 
 public class AlternateLauncher implements IXposedHookLoadPackage
 {
@@ -84,8 +86,7 @@ public class AlternateLauncher implements IXposedHookLoadPackage
 							query.set(0, userLauncher);
 						}
 						// (un)freeze Amazon Launcher
-						if (index == 0) // no user launcher installed
-						{
+						if (index == 0) { // no user launcher installed
 							freeze = false;
 						}
 						try {

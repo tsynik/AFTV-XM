@@ -1,4 +1,4 @@
-package rbox.xposed.firetvmods;
+package tsynik.xposed.mod.aftv;
 
 import java.util.ArrayList;
 import java.util.Iterator;

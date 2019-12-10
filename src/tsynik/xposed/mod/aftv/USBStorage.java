@@ -1,4 +1,4 @@
-package rbox.xposed.firetvmods;
+package tsynik.xposed.mod.aftv;
 
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
@@ -8,7 +8,7 @@ import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
-import rbox.xposed.firetvmods.BuildConfig;
+import tsynik.xposed.mod.aftv.BuildConfig;
 
 public class USBStorage implements IXposedHookLoadPackage
 {

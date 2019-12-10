@@ -1,4 +1,4 @@
-package rbox.xposed.firetvmods;
+package tsynik.xposed.mod.aftv;
 
 import android.app.AndroidAppHelper;
 
@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import rbox.xposed.firetvmods.BuildConfig;
+import tsynik.xposed.mod.aftv.BuildConfig;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
