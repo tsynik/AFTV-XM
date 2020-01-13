@@ -27,7 +27,6 @@ public class AlternateLauncher implements IXposedHookLoadPackage
 	@Override
 	public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable
 	{
-
 		if (lpparam.packageName.equals("android")) {
 			// Use the alternate launcher instead of the Amazon launcher
 			findAndHookMethod("com.android.server.pm.PackageManagerService", lpparam.classLoader, "chooseBestActivity", Intent.class, String.class, int.class, List.class, int.class, new XC_MethodHook() {
@@ -41,12 +40,12 @@ public class AlternateLauncher implements IXposedHookLoadPackage
 					Bundle extras = intent.getExtras();
 					boolean loadSettings = false;
 					boolean freeze = true;
-					// DEBUG FireOS 6.2.6.6
-					// 0 ### : com.amazon.tv.launcher.ui.HomeActivity_vNext priority: 950
-					// 1 ### : com.amazon.firehomestarter.HomeStarterActivity priority: 1
-					// 2 ### : ca.dstudio.atvlauncher.screens.launcher.LauncherActivity priority: 0
-					// 3 ### : com.amazon.tv.leanbacklauncher.MainActivity priority: 0
-					// 4 ### : com.amazon.tv.settings.v2.system.FallbackHome priority: -1000
+					// DEBUG FireOS 6.2.6.8
+					// 0 : com.amazon.tv.launcher.ui.HomeActivity_vNext priority: 950
+					// 1 : com.google.android.leanbacklauncher.MainActivity priority: 2
+					// 2 : com.amazon.firehomestarter.HomeStarterActivity priority: 1
+					// 3 : com.amazon.tv.leanbacklauncher.MainActivity priority: 0
+					// 4 : com.amazon.tv.settings.v2.system.FallbackHome priority: -1000
 					if (BuildConfig.DEBUG) Log.d(TAG, "### I ### " + param.args[0].toString());
 					if (extras != null) {
 						for (String key : extras.keySet()) {
@@ -69,13 +68,18 @@ public class AlternateLauncher implements IXposedHookLoadPackage
 						// Find user launcher index
 						int index = 0;
 						for (int i=0; i < query.size(); i++) {
+							if (query.get(i).activityInfo.name.contains("com.google.android.leanbacklauncher")) {
+								index = i;
+								if (BuildConfig.DEBUG) Log.d(TAG, "### L ### found leanbacklauncher at index " + index);
+								// break; // allow override with user launcher
+							}
 							if (query.get(i).priority == 0) {
 								index = i;
 								if (BuildConfig.DEBUG) Log.d(TAG, "### L ### found user launcher at index " + index);
 								break;
-								}
+							}
 						}
-						// If user launcher found and 1st one is Amazon Launcher
+						// If user or leanback launcher found and 1st one is Amazon Launcher
 						// swap them so the user one is used instead
 						if (index > 0
 							&& query.get(0).activityInfo.name.contains("com.amazon.tv.launcher.ui.HomeActivity")
@@ -86,48 +90,33 @@ public class AlternateLauncher implements IXposedHookLoadPackage
 							query.set(0, userLauncher);
 						}
 						// (un)freeze Amazon Launcher
-						if (index == 0) { // no user launcher installed
-							freeze = false;
-						}
-						try {
-							if (BuildConfig.DEBUG) Log.d(TAG, "### Z ### freeze: " + freeze);
-							Context context = (Context) AndroidAppHelper.currentApplication();
-							Settings.Global.putString(context.getContentResolver(), "frozenMode", freeze ? "enabled" : "disabled");
-						} catch(Exception e) {
-							e.printStackTrace();
-						}
+//						if (index == 0) { // no user launcher installed
+//							freeze = false;
+//						}
+//						try {
+//							if (BuildConfig.DEBUG) Log.d(TAG, "### Z ### freeze amazon launcher: " + freeze);
+//							Context context = (Context) AndroidAppHelper.currentApplication();
+//							Settings.Global.putString(context.getContentResolver(), "frozenMode", freeze ? "enabled" : "disabled");
+//						} catch(Exception e) {
+//							// e.printStackTrace();
+//						}
 					}
 				}
 			});
 		}
-
 		// hook KFTV Launcher
-//		if (lpparam.packageName.equals("com.amazon.tv.launcher"))
-//		{
-//			if (BuildConfig.DEBUG) Log.i(TAG, " ### IN ### com.amazon.tv.launcher");
-//			findAndHookMethod("com.amazon.tv.launcher.ui.HomeActivity_vNext", lpparam.classLoader, "onNewIntent", Intent.class, new XC_MethodHook() {
-//				@Override
-//				protected void afterHookedMethod(MethodHookParam param) throws Throwable
-//				{
-//					if (BuildConfig.DEBUG) Log.i("### onNewIntent ### ", "com.amazon.tv.launcher.ui.HomeActivity_vNext");
-//					Intent intent = (Intent)param.args[0];
-//					Bundle extras = intent.getExtras();
-//					if (extras != null) {
-//						if (BuildConfig.DEBUG) Log.i("### has extras ### ", extras.toString());
-//					}
-//				}
-//			});
-//
-//			// force frozenMode in Amazon Launcher
-//			findAndHookMethod("com.amazon.tv.GlobalSettings", lpparam.classLoader, "getFrozenMode", new XC_MethodHook() {
-//				@Override
-//				protected void afterHookedMethod(MethodHookParam param) throws Throwable
-//				{
-//					if (BuildConfig.DEBUG) Log.i(TAG, "### com.amazon.tv.GlobalSettings ### override getFrozenMode to true");
-//					// FREEZE KFTV
-//					param.setResult(true);
-//				}
-//			});
-//		}
+		if (lpparam.packageName.equals("com.amazon.tv.launcher"))
+		{
+			// force frozenMode in Amazon Launcher
+			findAndHookMethod("com.amazon.tv.GlobalSettings", lpparam.classLoader, "getFrozenMode", new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param) throws Throwable
+				{
+					if (BuildConfig.DEBUG) Log.i(TAG, "### com.amazon.tv.GlobalSettings ### override getFrozenMode to true");
+					// FREEZE KFTV
+					param.setResult(true);
+				}
+			});
+		}
 	}
 }
