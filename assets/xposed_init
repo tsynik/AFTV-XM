@@ -1,4 +1,5 @@
 tsynik.xposed.mod.aftv.AlternateLauncher
 tsynik.xposed.mod.aftv.FireOSRes
 tsynik.xposed.mod.aftv.KeyBindings
+tsynik.xposed.mod.aftv.PermFixer
 tsynik.xposed.mod.aftv.USBStorage
