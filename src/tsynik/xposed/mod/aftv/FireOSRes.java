@@ -6,17 +6,13 @@ import android.content.Context;
 import android.content.res.XModuleResources;
 import android.content.res.XResources;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-//import android.view.ViewGroup.LayoutParams;
-//import android.view.ViewGroup.MarginLayoutParams;
-import android.widget.LinearLayout;
+//import android.view.ViewGroup;
+//import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import tsynik.xposed.mod.aftv.BuildConfig;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -27,7 +23,9 @@ import de.robv.android.xposed.callbacks.XC_InitPackageResources.InitPackageResou
 import de.robv.android.xposed.callbacks.XC_LayoutInflated;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
-public class FireOSRes implements IXposedHookZygoteInit//, IXposedHookInitPackageResources
+import tsynik.xposed.mod.aftv.BuildConfig;
+
+public class FireOSRes implements IXposedHookZygoteInit
 {
 	private String MODULE_PATH;
 	private int DRAWABLE_MENU_ITEMS;
@@ -73,51 +71,42 @@ public class FireOSRes implements IXposedHookZygoteInit//, IXposedHookInitPackag
 		XResources.setSystemWideReplacement("amazon.fireos", "bool", "config_amazonusagestats_process_device_mode", false);
 		// Launcher OOM Adjust
 		XResources.setSystemWideReplacement("amazon.fireos", "array", "config_amazonoomadjpolicy_homeAdjProcNames", new String[]{"com.amazon.tv.leanbacklauncher", "com.amazon.tv.launcher", "com.amazon.ags.app"});
-		// Hook Power Off Layout
+		// Hook Power Off Layout amazonshutdownmessage_activity_powering_off
+		// <LinearLayout
+		//	android:gravity="center_horizontal"
+		//	android:orientation="vertical"
+		//	android:background="#ff000000"
+		//	android:paddingLeft="@android:dimen/config_inCallNotificationVolume"
+		//	android:paddingRight="@android:dimen/config_inCallNotificationVolume"
+		//	android:layout_width="fill_parent"
+		//	android:layout_height="fill_parent"
+		//	xmlns:android="http://schemas.android.com/apk/res/android">
+		//	<TextView
+		//		android:textAppearance="?android:textAppearanceSmall"
+		//		android:textColor="#ffffffff"
+		//		android:layout_gravity="center_horizontal"
+		//		android:id="@id/power_off_message"
+		//		android:paddingTop="@android:dimen/config_inCallNotificationVolume"
+		//		android:paddingBottom="@android:dimen/config_inCallNotificationVolume"
+		//		android:layout_width="wrap_content"
+		//		android:layout_height="wrap_content"
+		//		android:fontFamily="helvetica_lt_75_bold" />
+		// </LinearLayout>
 		XResources.hookSystemWideLayout("amazon.fireos", "layout", "amazonshutdownmessage_activity_powering_off", new XC_LayoutInflated() {
 			@Override
 			public void handleLayoutInflated(LayoutInflatedParam liparam) throws Throwable {
 				if (BuildConfig.DEBUG) Log.d(TAG, "### initZygote for amazonshutdownmessage_activity_powering_off");
-
-				// liparam.view.setPadding(40, 0, 40, 0);
-				// liparam.view.setBackgroundColor(Color.TRANSPARENT);
 				liparam.view.setBackgroundColor(Color.parseColor("#BF010C12"));
-
-				//LayoutParams params = liparam.view.getLayoutParams();
-				Context context = (Context) AndroidAppHelper.currentApplication();
-				int width = (context.getResources().getDisplayMetrics().widthPixels / 2);
-				int height = (context.getResources().getDisplayMetrics().heightPixels / 2);
-				if (BuildConfig.DEBUG) Log.d(TAG, "### W : H ### " + width + " : " + height);
-				// liparam.view.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-
-				// liparam.view.setBackground(modRes.getDrawable(R.drawable.poweroff_background));
-				// liparam.view.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
+				// Context context = (Context) AndroidAppHelper.currentApplication();
+				// int width = (context.getResources().getDisplayMetrics().widthPixels / 2);
+				// int height = (context.getResources().getDisplayMetrics().heightPixels / 2);
+				// if (BuildConfig.DEBUG) Log.d(TAG, "### W : H ### " + width + " : " + height);
 				TextView poweroff = (TextView) liparam.view.findViewById(liparam.res.getIdentifier("power_off_message", "id", "amazon.fireos"));
 				poweroff.setTextColor(Color.parseColor("#FFA724"));
 				poweroff.setTextSize(22.0f);
 				poweroff.setPadding(60, 60, 60, 60);
-				// poweroff.setBackground(modRes.getDrawable(R.drawable.poweroff_background));
+				poweroff.setTypeface(Typeface.create("helvetica_ne_lt_45_lt",Typeface.NORMAL)); // Amazon Ember Light
 			}
 		});
 	}
-
-//	@Override
-//	public void handleInitPackageResources(InitPackageResourcesParam resparam) throws Throwable
-//	{
-//		if (!resparam.packageName.equals("amazon.fireos"))
-//			return;
-//		if (BuildConfig.DEBUG) Log.d(TAG, "### handleInitPackageResources for " + resparam.packageName);
-//		// Add the menu_items drawable to the package resources
-//		// Resources res = XModuleResources.createInstance(MODULE_PATH, resparam.res);
-//		// DRAWABLE_MENU_ITEMS = resparam.res.addResource(res, R.drawable.menu_items);
-//		resparam.res.hookLayout("amazon.fireos", "layout", "amazonshutdownmessage_activity_powering_off", new XC_LayoutInflated() {
-//			@Override
-//			public void handleLayoutInflated(LayoutInflatedParam liparam) throws Throwable {
-//				if (BuildConfig.DEBUG) Log.d(TAG, "### handleLayoutInflated for amazonshutdownmessage_activity_powering_off");
-//				TextView poweroff = (TextView) liparam.view.findViewById(liparam.res.getIdentifier("power_off_message", "id", "amazon.fireos"));
-//				poweroff.setTextColor(Color.RED);
-//			}
-//		});
-//	}
 }
