@@ -5,3 +5,4 @@ gen
 obj
 classes.dex
 sign.sh
+src/tsynik/xposed/mod/aftv/R.java
