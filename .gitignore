@@ -4,3 +4,4 @@ bin
 gen
 obj
 classes.dex
+sign.sh
