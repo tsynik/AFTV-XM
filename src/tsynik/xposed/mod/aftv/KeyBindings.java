@@ -140,29 +140,29 @@ public class KeyBindings implements IXposedHookZygoteInit, IXposedHookLoadPackag
 						((InputMethodManager) mContext.getSystemService("input_method")).showInputMethodPicker();
 						param.setResult(-1);
 					}
-//					// ASSIST on MIC BTN PRESS
-//					if (repeatCount == 0 & event.getKeyCode() == KeyEvent.KEYCODE_SEARCH) {
-//						if (BuildConfig.DEBUG) Log.d(TAG, " ### SEARCH ### ");
-//						Context mContext = (Context)XposedHelpers.getObjectField(param.thisObject, "mContext");
-//						// Intent searchintent = mContext.getPackageManager().getLaunchIntentForPackage("com.google.android.katniss");
-//						// mContext.startActivity(searchintent);
-//						Intent searchintent = new Intent("android.intent.action.ASSIST");
-//						mContext.sendBroadcast(searchintent);
-//						param.setResult(-1);
-//					}
+					// ASSIST on MIC BTN PRESS
+					if (repeatCount == 0 & event.getKeyCode() == KeyEvent.KEYCODE_SEARCH) {
+						if (BuildConfig.DEBUG) Log.d(TAG, " ### SEARCH ### ");
+						Context mContext = (Context)XposedHelpers.getObjectField(param.thisObject, "mContext");
+						// Intent searchintent = mContext.getPackageManager().getLaunchIntentForPackage("com.google.android.katniss");
+						// mContext.startActivity(searchintent);
+						Intent searchintent = new Intent("android.intent.action.ASSIST");
+						mContext.sendBroadcast(searchintent);
+						param.setResult(-1);
+					}
 				}
 			}
 		});
 
-//		FireTVKeyPolicyManager = "com.amazon.policy.keypolicymanager.FireTVKeyPolicyManager";
-//		XposedHelpers.findAndHookMethod(FireTVKeyPolicyManager, lpparam.classLoader, "isFgAppAllowedToAcceptVoice", new XC_MethodHook() {
-//			@Override
-//			protected void beforeHookedMethod(MethodHookParam param) throws Throwable
-//			{
-//				if (BuildConfig.DEBUG) Log.i(TAG, "### override isFgAppAllowedToAcceptVoice to true");
-//				param.setResult(true);
-//			}
-//		});
+		FireTVKeyPolicyManager = "com.amazon.policy.keypolicymanager.FireTVKeyPolicyManager";
+		XposedHelpers.findAndHookMethod(FireTVKeyPolicyManager, lpparam.classLoader, "isFgAppAllowedToAcceptVoice", new XC_MethodHook() {
+			@Override
+			protected void beforeHookedMethod(MethodHookParam param) throws Throwable
+			{
+				if (BuildConfig.DEBUG) Log.i(TAG, "### override isFgAppAllowedToAcceptVoice to true");
+				param.setResult(true);
+			}
+		});
 
 //		XposedBridge.hookAllMethods(XposedHelpers.findClass(FireTVKeyPolicyManager, lpparam.classLoader), "handleKeyEventBeforeQueueingImpl", new XC_MethodHook() {
 //			@Override
