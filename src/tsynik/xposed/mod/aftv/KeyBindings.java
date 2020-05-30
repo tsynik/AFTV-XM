@@ -3,6 +3,8 @@ package tsynik.xposed.mod.aftv;
 import java.io.File;
 import java.util.Map.Entry;
 
+import android.app.ActivityManager;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -144,10 +146,20 @@ public class KeyBindings implements IXposedHookZygoteInit, IXposedHookLoadPackag
 					if (repeatCount == 0 & event.getKeyCode() == KeyEvent.KEYCODE_SEARCH) {
 						if (BuildConfig.DEBUG) Log.d(TAG, " ### SEARCH ### ");
 						Context mContext = (Context)XposedHelpers.getObjectField(param.thisObject, "mContext");
+						// INTENT
 						// Intent searchintent = mContext.getPackageManager().getLaunchIntentForPackage("com.google.android.katniss");
+						// searchintent.setAction("android.intent.action.ASSIST");
+						// String cApp = ((ActivityManager) mContext.getSystemService("activity")).getRunningTasks(1).get(0).topActivity.getPackageName();
+						// if (BuildConfig.DEBUG) Log.d(TAG, " ### cApp ### " + cApp);
+						// searchintent.putExtra("android.intent.extra.ASSIST_PACKAGE", cApp);
 						// mContext.startActivity(searchintent);
-						Intent searchintent = new Intent("android.intent.action.ASSIST");
-						mContext.sendBroadcast(searchintent);
+						// BROADCAST
+						//Intent searchintent = new Intent("android.intent.action.ASSIST");
+						//searchintent.putExtra("android.intent.extra.KEY_EVENT", 219);
+						//mContext.sendBroadcast(searchintent);
+						// KEYPRESS
+						if (BuildConfig.DEBUG) Log.d(TAG, " ### simulateKey ### KEYCODE_ASSIST");
+						simulateKey(KeyEvent.KEYCODE_ASSIST);
 						param.setResult(-1);
 					}
 				}
@@ -184,5 +196,19 @@ public class KeyBindings implements IXposedHookZygoteInit, IXposedHookLoadPackag
 //			}
 //		});
 
+	}
+	public static void simulateKey(final int KeyCode) {
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					Instrumentation inst = new Instrumentation();
+					inst.sendKeyDownUpSync(KeyCode);
+				} catch (Exception e) {
+					Log.e("Exception when sendKeyDownUpSync", e.toString());
+				}
+			}
+
+		}.start();
 	}
 }
