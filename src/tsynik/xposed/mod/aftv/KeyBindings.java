@@ -8,7 +8,9 @@ import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.view.inputmethod.InputMethodSubtype;
 import android.view.KeyEvent;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -18,6 +20,8 @@ import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
+
+import java.util.List;
 
 import tsynik.xposed.mod.aftv.BuildConfig;
 
@@ -120,6 +124,7 @@ public class KeyBindings implements IXposedHookZygoteInit, IXposedHookLoadPackag
 			{
 				KeyEvent event = (KeyEvent)param.args[1];
 				int repeatCount = event.getRepeatCount();
+				int kbCount = 0;
 
 				// Log.d(TAG, "interceptKeyBeforeDispatching ### KEYCODE " + event.getKeyCode() + " RC " + repeatCount);
 				if (event.getAction() == KeyEvent.ACTION_DOWN)
@@ -133,17 +138,29 @@ public class KeyBindings implements IXposedHookZygoteInit, IXposedHookLoadPackag
 						mContext.startActivity(mContext.getPackageManager().getLaunchIntentForPackage(value));
 						param.setResult(-1);
 					}
+
+					Context mContext = (Context)XposedHelpers.getObjectField(param.thisObject, "mContext");
+					InputMethodManager inputMgr = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+					List<InputMethodInfo> inputMethodList = inputMgr.getEnabledInputMethodList();
+
+					for (InputMethodInfo method : inputMethodList) {
+						List<InputMethodSubtype> subMethods = inputMgr.getEnabledInputMethodSubtypeList(method, true);
+						for (InputMethodSubtype submethod : subMethods) {
+							if (submethod.getMode().equals("keyboard")) {
+								++kbCount;
+							}
+						}
+						if (BuildConfig.DEBUG) Log.d(TAG, " ### kbCount ### " + kbCount);
+					}
 					// Keyboard switch on LONG PRESS MENU
-					if (longPress != 0 && event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
+					if (longPress != 0 && event.getKeyCode() == KeyEvent.KEYCODE_MENU && kbCount > 1) {
 						if (BuildConfig.DEBUG) Log.d(TAG, " ### MENU_LONG ### ");
-						Context mContext = (Context)XposedHelpers.getObjectField(param.thisObject, "mContext");
 						((InputMethodManager) mContext.getSystemService("input_method")).showInputMethodPicker();
 						param.setResult(-1);
 					}
 //					// ASSIST on MIC BTN PRESS
 //					if (repeatCount == 0 & event.getKeyCode() == KeyEvent.KEYCODE_SEARCH) {
 //						if (BuildConfig.DEBUG) Log.d(TAG, " ### SEARCH ### ");
-//						Context mContext = (Context)XposedHelpers.getObjectField(param.thisObject, "mContext");
 //						// Intent searchintent = mContext.getPackageManager().getLaunchIntentForPackage("com.google.android.katniss");
 //						// mContext.startActivity(searchintent);
 //						Intent searchintent = new Intent("android.intent.action.ASSIST");
