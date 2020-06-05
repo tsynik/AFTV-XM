@@ -152,7 +152,6 @@ public class KeyBindings implements IXposedHookZygoteInit, IXposedHookLoadPackag
 									++kbCount;
 								}
 							}
-							if (BuildConfig.DEBUG) Log.d(TAG, " ### kbCount ### " + kbCount);
 						}
 						if (kbCount > 1) inputMgr.showInputMethodPicker();
 						param.setResult(-1);
