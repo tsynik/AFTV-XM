@@ -139,28 +139,28 @@ public class KeyBindings implements IXposedHookZygoteInit, IXposedHookLoadPackag
 						param.setResult(-1);
 					}
 
-					Context mContext = (Context)XposedHelpers.getObjectField(param.thisObject, "mContext");
-					InputMethodManager inputMgr = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-					List<InputMethodInfo> inputMethodList = inputMgr.getEnabledInputMethodList();
-
-					for (InputMethodInfo method : inputMethodList) {
-						List<InputMethodSubtype> subMethods = inputMgr.getEnabledInputMethodSubtypeList(method, true);
-						for (InputMethodSubtype submethod : subMethods) {
-							if (submethod.getMode().equals("keyboard")) {
-								++kbCount;
-							}
-						}
-						if (BuildConfig.DEBUG) Log.d(TAG, " ### kbCount ### " + kbCount);
-					}
 					// Keyboard switch on LONG PRESS MENU
-					if (longPress != 0 && event.getKeyCode() == KeyEvent.KEYCODE_MENU && kbCount > 1) {
+					if (longPress != 0 && event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
 						if (BuildConfig.DEBUG) Log.d(TAG, " ### MENU_LONG ### ");
-						((InputMethodManager) mContext.getSystemService("input_method")).showInputMethodPicker();
+						Context mContext = (Context)XposedHelpers.getObjectField(param.thisObject, "mContext");
+						InputMethodManager inputMgr = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+						List<InputMethodInfo> inputMethodList = inputMgr.getEnabledInputMethodList();
+						for (InputMethodInfo method : inputMethodList) {
+							List<InputMethodSubtype> subMethods = inputMgr.getEnabledInputMethodSubtypeList(method, true);
+							for (InputMethodSubtype submethod : subMethods) {
+								if (submethod.getMode().equals("keyboard")) {
+									++kbCount;
+								}
+							}
+							if (BuildConfig.DEBUG) Log.d(TAG, " ### kbCount ### " + kbCount);
+						}
+						if (kbCount > 1) inputMgr.showInputMethodPicker();
 						param.setResult(-1);
 					}
 //					// ASSIST on MIC BTN PRESS
 //					if (repeatCount == 0 & event.getKeyCode() == KeyEvent.KEYCODE_SEARCH) {
 //						if (BuildConfig.DEBUG) Log.d(TAG, " ### SEARCH ### ");
+//						Context mContext = (Context)XposedHelpers.getObjectField(param.thisObject, "mContext");
 //						// Intent searchintent = mContext.getPackageManager().getLaunchIntentForPackage("com.google.android.katniss");
 //						// mContext.startActivity(searchintent);
 //						Intent searchintent = new Intent("android.intent.action.ASSIST");
